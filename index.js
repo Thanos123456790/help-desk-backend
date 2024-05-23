@@ -30,6 +30,8 @@ async function run() {
         const db = client.db("HelpDask");
         const issuesCollection = db.collection("issues");
         const adminReqCollection = db.collection("adminReqests");
+        const userFeedbackCollection = db.collection("feedback");
+
 
         app.post("/admin-req",async(req,res) => {
             const body = req.body;
@@ -41,6 +43,21 @@ async function run() {
                     message: "can not insert try again later",
                     status: false,
                 });
+            }
+        })
+
+        app.post("/send-feedback", async (req, res) => {
+            const { feedback, user, userName } = req.body;
+            try {
+                await userFeedbackCollection.insertOne({
+                    feedback,
+                    user,
+                    userName,
+                    createdAt: new Date()
+                });
+                res.status(200).json({ success: true, message: "Feedback submitted successfully" });
+            } catch (error) {
+                res.status(500).json({ success: false, message: "Internal Server Error" });
             }
         })
 
